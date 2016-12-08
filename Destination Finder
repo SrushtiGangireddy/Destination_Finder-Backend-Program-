@@ -1,0 +1,223 @@
+import java.io.*;
+import java.util.*;
+import java.math.*;
+
+public class Solution{
+    public static void main(String args[]){
+        Scanner sc=new Scanner(System.in);
+        
+        int num_guests=sc.nextInt();
+        HashMap<Integer,ArrayList<String>> guest_passions=new HashMap<Integer,ArrayList<String>>();
+        ArrayList<String> destinations=new ArrayList<String>();
+        TreeSet<String> unique_passions=new TreeSet<String>();
+        for(int i=0;i<num_guests;i++){
+            ArrayList<String> passions=new ArrayList<String>();
+            
+            int num_passions=sc.nextInt();
+            
+            for(int j=0;j<num_passions;j++){
+                String passion=sc.next();
+                passions.add(passion);
+                unique_passions.add(passion);
+            }
+            
+          guest_passions.put(i,passions);
+            
+        }
+        
+        int num_destinations=sc.nextInt();
+        HashMap<String,ArrayList<Float>> dest_loc=new HashMap<String,ArrayList<Float>>();
+        HashMap<String,ArrayList<String>> dest_passions=new HashMap<String,ArrayList<String>>();
+        for(int k=0;k<num_destinations;k++){
+            
+            String dest_name=sc.next();
+            destinations.add(dest_name);
+            ArrayList<Float> latlon=new ArrayList<Float>();
+            float lat=sc.nextFloat();
+            float lon=sc.nextFloat();
+            latlon.add(lat);
+            latlon.add(lon);
+            int num_passion=sc.nextInt();
+            ArrayList<String> al=new ArrayList<String>();
+            for(int l=0;l<num_passion;l++){
+                String pass=sc.next();
+                al.add(pass);
+            }
+            dest_loc.put(dest_name,latlon);
+            dest_passions.put(dest_name,al);
+       }
+        
+      
+        TreeMap<String,ArrayList<String>> passions_satisfying = new TreeMap<String,ArrayList<String>>();
+        
+        Iterator dest_iterator=dest_passions.entrySet().iterator();
+        while(dest_iterator.hasNext()){
+            
+            Map.Entry dest_pass=(Map.Entry)dest_iterator.next();
+            String destination=(String)dest_pass.getKey();
+            ArrayList<String> pa=(ArrayList<String>)dest_pass.getValue();
+            ArrayList<String> temp=new ArrayList<String>();
+            for(int m=0;m<pa.size();m++){
+                String passion=(String)pa.get(m);
+                if(unique_passions.contains(passion)){
+                    temp.add(passion);
+                }
+            }
+            passions_satisfying.put(destination,temp);
+            
+        }
+        
+        HashMap<ArrayList<String>,Integer> pairdestinations=new HashMap<ArrayList<String>,Integer>();
+        ArrayList<Integer> max_pas=new ArrayList<Integer>();
+        for(int x=0;x<destinations.size();x++){
+            
+            String dest_a=(String)destinations.get(x);
+            
+            
+            for(int y=x+1;y<destinations.size();y++){
+                
+                String dest_b=(String)destinations.get(y);
+                
+                ArrayList<String> dest_pair=new ArrayList<String>();
+                
+                dest_pair.add(dest_a);
+                dest_pair.add(dest_b);
+                
+                ArrayList<String> passions_a=passions_satisfying.get(dest_a);
+                ArrayList<String> passions_b=passions_satisfying.get(dest_b);
+                
+                TreeSet<String> passions_a_b=new TreeSet<String>();
+                
+                for(String pa:passions_a){
+                    passions_a_b.add(pa);
+                }
+                for(String pb:passions_b){
+                    passions_a_b.add(pb);
+                }
+                
+          //      System.out.println(dest_pair+ " " + passions_a_b);
+                
+                max_pas.add(passions_a_b.size());
+                pairdestinations.put(dest_pair,passions_a_b.size());
+                
+                
+            }
+            
+        }
+        
+        Collections.sort(max_pas);
+        int max_number_passions=max_pas.get(max_pas.size()-1);
+        
+        ArrayList<ArrayList<String>> final_destinations=new ArrayList<ArrayList<String>>();
+        
+        
+        Iterator final_it=pairdestinations.entrySet().iterator();
+        while(final_it.hasNext()){
+            Map.Entry coupledest=(Map.Entry)final_it.next();
+            
+            ArrayList<String> couple=(ArrayList<String>)coupledest.getKey();
+            int number_passions_satisfied=(Integer)coupledest.getValue();
+            
+            if(number_passions_satisfied == max_number_passions){
+                final_destinations.add(couple);
+            }
+        }
+        
+        
+        if(final_destinations.size() == 1){
+   //         System.out.println(final_destinations.get(0));
+            
+            ArrayList<String> final_destination_pair=(ArrayList<String>)final_destinations.get(0);
+            
+            ArrayList<String> sort_dest=new ArrayList<String>();
+            
+            for(String str:final_destination_pair){
+                sort_dest.add(str);
+            }
+            
+            Collections.sort(sort_dest);
+            for(String stri:sort_dest){
+                System.out.print(stri+" ");
+            }
+            
+        }else{
+            
+            HashMap<ArrayList<String>,Double> multiple_final_dest=new HashMap<ArrayList<String>,Double>();
+            ArrayList<Double> distances=new ArrayList<Double>();
+   //         System.out.println(final_destinations);
+           
+            for(ArrayList<String> abc:final_destinations){
+               
+                String first_dest=(String)abc.get(0);
+                String second_dest=(String)abc.get(1);
+               
+                double dist=distance_between(dest_loc.get(first_dest),dest_loc.get(second_dest));
+                
+                multiple_final_dest.put(abc,dist);
+                distances.add(dist);
+                
+            }
+  //          System.out.println(multiple_final_dest);
+            Collections.sort(distances);
+            double min=(Double)distances.get(0);
+            ArrayList<String> final_dest_pair=new ArrayList<String>();
+            Iterator it=multiple_final_dest.entrySet().iterator();
+            
+            while(it.hasNext()){
+                Map.Entry final_pair=(Map.Entry)it.next();
+                
+                ArrayList<String> dest_key=(ArrayList<String>)final_pair.getKey();
+                double dest_val=(Double)final_pair.getValue();
+                
+                if(dest_val==min){
+                    final_dest_pair=dest_key;
+ //                   System.out.println(dest_key);
+                }
+            }
+            
+            ArrayList<String> sort_dest=new ArrayList<String>();
+ //           System.out.println(final_dest_pair);
+            for(String str:final_dest_pair){
+                sort_dest.add(str);
+            }
+            
+            Collections.sort(sort_dest);
+            
+            
+            for(String stri:sort_dest){
+                System.out.print(stri+" ");
+            }
+            
+            
+        }
+        
+    }
+    
+    public static double distance_between(ArrayList<Float> a,ArrayList<Float> b){
+        
+        double EARTH_RADIUS=6371;
+        
+        float a_lat=(Float)a.get(0);
+        float a_lon=(Float)a.get(1);
+        
+        float b_lat=(Float)b.get(0);
+        float b_lon=(Float)b.get(1);
+        
+        double lat_a=Math.toRadians(Double.valueOf(String.valueOf(a_lat)));
+        double lat_b=Math.toRadians(Double.valueOf(String.valueOf(b_lat)));
+        
+        double lon_a=Math.toRadians(Double.valueOf(String.valueOf(a_lon)));
+        double lon_b=Math.toRadians(Double.valueOf(String.valueOf(b_lon)));
+        
+        double da=Math.sin(lat_a) * Math.sin(lat_b);
+        double db=Math.cos(lat_a) * Math.cos(lat_b) * Math.cos(lon_b - lon_a);
+        
+        double distance=Math.acos(da+db)*EARTH_RADIUS;
+        
+        return distance;
+        
+    }
+    
+   
+    
+}
