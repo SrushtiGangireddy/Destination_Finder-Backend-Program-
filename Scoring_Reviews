@@ -1,0 +1,150 @@
+import java.io.*;
+import java.math.*;
+import java.util.*;
+
+public class Solution{
+    public static void main(String args[]){
+        
+        Scanner sc=new Scanner(System.in);
+        
+        int num_passions=sc.nextInt();
+        int num_reviews=sc.nextInt();
+        ArrayList<String> passions=new ArrayList<String>();
+        for(int i=0;i<num_passions;i++){
+            passions.add(sc.next());
+        }
+        ArrayList<String> review_contents=new ArrayList<String>();
+        HashMap<String,ArrayList<HashMap<String,String>>> reviews=new HashMap<String,ArrayList<HashMap<String,String>>>();
+        
+        for(int j=0;j<num_reviews;j++){
+            HashMap<String,String> time_review=new HashMap<String,String>();
+            String reviewer_id=sc.next();
+            String time_stamp=sc.next();
+            
+            sc.nextLine();
+            
+            String review_content=sc.nextLine();
+            review_contents.add(review_content);
+            time_review.put(time_stamp,review_content);
+            
+            if(reviews.containsKey(reviewer_id)){
+                
+                reviews.get(reviewer_id).add(time_review);
+                
+            }else{
+                
+                ArrayList<HashMap<String,String>> reviewer_review = new ArrayList<HashMap<String,String>>();
+                reviewer_review.add(time_review);
+                
+                reviews.put(reviewer_id,reviewer_review);
+            }
+            
+        }
+        
+        HashMap<String,ArrayList<String>> passion_reviews=new HashMap<String,ArrayList<String>>();
+        
+        for(String p :passions){
+            ArrayList<String> grouping_passions=new ArrayList<String>();
+            Iterator it = review_contents.iterator();
+            while(it.hasNext()){
+                String review_text=(String)it.next();
+                
+                if(review_text.contains(p) | review_text.contains(p.toUpperCase()) | review_text.contains(p.toLowerCase())){
+                    grouping_passions.add(review_text);
+                }
+            }
+            
+            passion_reviews.put(p,grouping_passions);
+        }
+        
+        HashMap<String,ArrayList<Integer>> reviewer_score=new HashMap<String,ArrayList<Integer>>();
+        
+        for(String passion :passions){
+            int passion_score=0;
+            String expert_reviewer_id="";
+            Iterator reviews_iterator=reviews.entrySet().iterator();
+            while(reviews_iterator.hasNext()){
+                
+                Map.Entry review_pair=(Map.Entry)reviews_iterator.next();
+                
+                String rev_id=(String)review_pair.getKey();
+                ArrayList<HashMap<String,String>> time_review=(ArrayList<HashMap<String,String>>)review_pair.getValue();
+                int score=0;
+                Iterator multiple_reviews_iterator=time_review.iterator();
+                while(multiple_reviews_iterator.hasNext()){
+                    
+                    HashMap<String,String> time_rev=(HashMap<String,String>)multiple_reviews_iterator.next();
+                    
+                    Iterator rev_it=time_rev.entrySet().iterator();
+                    while(rev_it.hasNext()){
+                        Map.Entry pair=(Map.Entry)rev_it.next();
+                        
+                        String rev_time=(String)pair.getKey();
+                        String rev_text=(String)pair.getValue();
+                       
+                        if(rev_text.contains(passion) | rev_text.contains(passion.toLowerCase()) | rev_text.contains(passion.toUpperCase())){
+                            Date date=new Date(Long.valueOf(rev_time)*1000);
+                            Calendar cal=Calendar.getInstance();
+                            cal.setTime(date);
+
+                            int year=cal.get(Calendar.YEAR);
+                            int month=cal.get(Calendar.MONTH);
+                            int day=cal.get(Calendar.DAY_OF_MONTH);
+                            int hour=cal.get(Calendar.HOUR_OF_DAY);
+
+                            if((year == 2016) & (month == 5)){
+                            if(day >= 15){
+                                score = score + 20;
+                            }else{
+                                score = score + 10;
+                            }
+                            }else if((year == 2016) & (month == 6)){
+                            if(day <= 15){
+                                score = score + 20;
+                            }else{
+                                score = score + 10;
+                            }
+                            }else{
+                                score = score + 10;
+                            }
+
+                            if(rev_text.length() >= 100){
+                                score = score + 20;
+                            }else{
+                                score = score + 10;
+                            }
+
+                            }
+                        
+                        if(passion_score < score){
+                            passion_score=score;
+                            expert_reviewer_id=rev_id;
+                        }else if(passion_score == score){
+                            if(expert_reviewer_id.length() > 0){
+                                 if(Integer.valueOf(expert_reviewer_id) < Integer.valueOf(rev_id)){
+                                expert_reviewer_id=expert_reviewer_id;
+                            }else{
+                                expert_reviewer_id=rev_id;
+                            }
+                            }
+                           
+                        }
+                        
+                        
+                    }
+                    
+                }
+                
+            }
+            
+            if(expert_reviewer_id.length() > 0){
+                System.out.println(expert_reviewer_id);
+            }else{
+                System.out.println("-1");
+            }
+            
+            
+        }
+        
+    }
+}
