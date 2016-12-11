@@ -1,0 +1,134 @@
+import java.io.*;
+import java.util.*;
+import java.math.*;
+
+public class Solution{
+    public static void main(String args[]){
+        Scanner sc=new Scanner(System.in);
+        
+        int min_tags=sc.nextInt();
+        HashMap<String,ArrayList<String>> destinations=new HashMap<String,ArrayList<String>>();
+        ArrayList<String> places=new ArrayList<String>();
+        ArrayList<String> common_tags=new ArrayList<String>();
+        TreeMap<String,Integer> tags_count=new TreeMap<String,Integer>();
+        
+        sc.nextLine();
+        while(sc.hasNext()){
+            String temp=sc.nextLine();    
+            String[] dest_tags=temp.split(":");
+            
+            ArrayList<String> tags_al=new ArrayList<String>();
+            String dest_name=dest_tags[0];
+            String[] tags=dest_tags[1].split(",");
+            places.add(dest_name);
+            for(String tag:tags){
+                tags_al.add(tag);
+            }
+            
+            destinations.put(dest_name,tags_al);
+        }
+        
+        TreeMap<String,String> common_dest_tags=new TreeMap<String,String>();
+        
+        for(int i=0;i<places.size();i++){
+            
+            String a=(String)places.get(i);
+            ArrayList<String> a_tags=(ArrayList<String>)destinations.get(a);
+            
+            for(int j=i+1;j<places.size();j++){
+                int count=0;    
+                String b=(String)places.get(j);
+                ArrayList<String> common=new ArrayList<String>();
+                ArrayList<String> b_tags=(ArrayList<String>)destinations.get(b);
+                Iterator it=a_tags.iterator();
+                while(it.hasNext()){
+                    String taga=(String)it.next();
+                    if(b_tags.contains(taga)){
+                        count++;
+                        common.add(taga);
+                    }
+                }
+                
+                String common_dest_pair_tags="";
+                String common_dest_pair_name="";
+                if(count >= min_tags){
+                       if(a.compareTo(b) > 0){
+                            common_dest_pair_name=b+","+a;   
+                       }else{
+                           common_dest_pair_name=a+","+b;
+                       }
+                     Collections.sort(common);                
+                for(String str:common){
+                    if(common_dest_pair_tags.length() == 0){
+                        common_dest_pair_tags=str;
+                    }else{
+                        common_dest_pair_tags=common_dest_pair_tags+","+str;
+                    }
+                }
+                common_tags.add(common_dest_pair_tags);
+                common_dest_tags.put(common_dest_pair_name,common_dest_pair_tags);
+                }
+               
+            }
+            
+        }
+        
+        Iterator count_iterator=common_tags.iterator();
+        while(count_iterator.hasNext()){
+            String tag=(String)count_iterator.next();
+            int count=0;
+            Iterator dest_it=common_dest_tags.entrySet().iterator();
+            while(dest_it.hasNext()){
+                Map.Entry pair=(Map.Entry)dest_it.next();
+                String key=(String)pair.getKey();
+                String value=(String)pair.getValue();
+                
+                if(tag.equals(value)){
+                    count++;
+                }
+            }
+            tags_count.put(tag,count);
+        }
+        
+        Iterator counting=tags_count.entrySet().iterator();
+        while(counting.hasNext()){
+            Map.Entry pa=(Map.Entry)counting.next();
+            String ke=(String)pa.getKey();
+            int va=(Integer)pa.getValue();
+            
+            if(va > 1){
+                String prev="";
+                Iterator x=common_dest_tags.entrySet().iterator();
+                while(x.hasNext()){
+                    Map.Entry p=(Map.Entry)x.next();
+                    if(p.getValue().equals(ke)){
+                        if(prev.length() == 0){
+                            prev=(String)p.getKey();
+                        }else{
+                            String now[]=prev.split(",");
+                            String now_a=now[0];
+                            String now_b=now[1];
+                            
+                            String temp=(String)p.getKey();
+                            
+                            String then[]=temp.split(",");
+                            String then_a=then[0];
+                            String then_b=then[1];
+                            
+                            if(now_a.equals(then_a)){
+                                prev=now_a+","+now_b+","+then_b;
+                                System.out.println(prev);
+                            }else{
+                                prev=temp;
+                            }
+                            
+                        }
+                    }
+                }
+                
+            }
+        }
+        
+        
+    }
+}
