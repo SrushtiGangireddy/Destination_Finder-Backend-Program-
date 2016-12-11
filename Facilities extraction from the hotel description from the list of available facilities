@@ -1,0 +1,32 @@
+import java.io.*;
+import java.util.*;
+import java.math.*;
+
+public class Solution{
+    public static void main(String args[]){
+        Scanner sc=new Scanner(System.in);
+        
+        int num_facilities=sc.nextInt();
+        sc.nextLine();
+        ArrayList<String> facilities=new ArrayList<String>();
+        
+        for(int i=0;i<num_facilities;i++){
+            facilities.add(sc.nextLine());
+        }
+     
+        String hotel_desc=sc.nextLine();
+        ArrayList<String> found=new ArrayList<String>();
+        for(String s:facilities){
+            if(hotel_desc.contains(s) | hotel_desc.contains(s.toLowerCase()) | hotel_desc.contains(s.toUpperCase())){
+                found.add(s);
+            }
+        }
+        
+        Collections.sort(found);
+        
+        for(String fac:found){
+            System.out.println(fac);
+        }
+        
+    }
+}
